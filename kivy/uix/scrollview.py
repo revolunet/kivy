@@ -84,6 +84,10 @@ from kivy.clock import Clock
 from kivy.uix.stencilview import StencilView
 from kivy.properties import NumericProperty, BooleanProperty, AliasProperty
 
+gTimerInterval = 30.
+gMaxDecelerationSpeed = 30.
+gFriction = 1.
+
 
 # When we are generating documentation, Config doesn't exist
 _scroll_timeout = _scroll_distance = _scroll_friction = 0
@@ -293,6 +297,8 @@ class ScrollView(StencilView):
         self._touch = touch
         uid = self._get_uid()
         touch.grab(self)
+        self._kinetic_ismoving = False
+        self._kinetic_use = False
         touch.ud[uid] = {
             'mode': 'unknown',
             'sx': self.scroll_x,
@@ -331,6 +337,13 @@ class ScrollView(StencilView):
 
         if mode == 'scroll':
             ud['mode'] = mode
+            # current touch position
+            self._kinetic_cpos = touch.pos
+            if self._kinetic_ismoving is False:
+                self._kinetic_ismoving = True
+                self._kinetic_lpos = self._kinetic_cpos
+                Clock.schedule_interval(self._update_from_kinetic,
+                        gTimerInterval / 1000.)
             dx = touch.ox - touch.x
             dy = touch.oy - touch.y
             sx, sy = self.convert_distance_to_scroll(dx, dy)
@@ -338,10 +351,44 @@ class ScrollView(StencilView):
                 self.scroll_x = ud['sx'] + sx
             if self.do_scroll_y:
                 self.scroll_y = ud['sy'] + sy
-            ud['dt'] = touch.time_update - ud['time']
-            ud['time'] = touch.time_update
 
         return True
+
+    def _update_from_kinetic(self, dt):
+        if not self._kinetic_ismoving:
+            print 'kinetic action avoided (1)'
+            return
+        if self._kinetic_use is False:
+            lx, ly = self._kinetic_lpos
+            cx, cy = self._kinetic_cpos
+            self._kinetic_vx = cx - lx
+            self._kinetic_vy = cy - ly
+            print 'kinetic action 1', (self._kinetic_vx, self._kinetic_vy)
+        else:
+            self._kinetic_vx = max(-gMaxDecelerationSpeed,
+                    min(gMaxDecelerationSpeed, self._kinetic_vx))
+            self._kinetic_vy = max(-gMaxDecelerationSpeed,
+                    min(gMaxDecelerationSpeed, self._kinetic_vy))
+            if self._kinetic_vx > 0:
+                self._kinetic_vx -= gFriction
+            if self._kinetic_vx < 0:
+                self._kinetic_vx += gFriction
+            if self._kinetic_vy > 0:
+                self._kinetic_vy -= gFriction
+            if self._kinetic_vy < 0:
+                self._kinetic_vy += gFriction
+            if abs(self._kinetic_vx) < abs(gFriction) and \
+                    abs(self._kinetic_vy) < abs(gFriction):
+                print 'kinetic action avoided (2)'
+                return False
+
+            # do motion
+            print 'kinetic action 2', (self._kinetic_vx, self._kinetic_vy)
+            d = self.convert_distance_to_scroll(
+                self._kinetic_vx, self._kinetic_vy)
+            print 'kinetic action delta applied', d
+            self.scroll_x -= d[0]
+            self.scroll_y -= d[1]
 
     def on_touch_up(self, touch):
         # Warning: usually, we are checking if grab_current is ourself first. On
@@ -360,7 +407,8 @@ class ScrollView(StencilView):
                 super(ScrollView, self).on_touch_down(touch)
                 Clock.schedule_once(partial(self._do_touch_up, touch), .1)
             elif self.auto_scroll:
-                self._do_animation(touch)
+                self._kinetic_use = True
+                #self._do_animation(touch)
         else:
             if self._touch is not touch:
                 super(ScrollView, self).on_touch_up(touch)
