@@ -880,5 +880,6 @@ class WindowBase(EventDispatcher):
 #: Instance of a :class:`WindowBase` implementation
 Window = core_select_lib('window', (
     ('pygame', 'window_pygame', 'WindowPygame'),
+    ('fake', 'window_fake', 'WindowFake'),
 ), True)
 
