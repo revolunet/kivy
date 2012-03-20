@@ -36,7 +36,7 @@ to the :data:`Button.state` property ::
 __all__ = ('Button', )
 
 from kivy.uix.label import Label
-from kivy.properties import OptionProperty, StringProperty, ListProperty
+from kivy.properties import OptionProperty, StringProperty, ListProperty, BooleanProperty
 
 
 class Button(Label):
@@ -105,6 +105,12 @@ class Button(Label):
         self.register_event_type('on_press')
         self.register_event_type('on_release')
         super(Button, self).__init__(**kwargs)
+        from kivy.core.window import Window
+        Window.bind(mouse_pos=self.focus)
+
+    highlight = BooleanProperty(False)
+    def focus(self, window, pos):
+        self.highlight = self.collide_point(*self.to_widget(*pos))
 
     def _do_press(self):
         self.state = 'down'

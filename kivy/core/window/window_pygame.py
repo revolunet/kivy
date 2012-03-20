@@ -215,6 +215,8 @@ class WindowPygame(WindowBase):
 
             # mouse move
             elif event.type == pygame.MOUSEMOTION:
+                x, y = event.pos
+                self.mouse_pos = x, self.system_size[1] - y
                 # don't dispatch motion if no button are pressed
                 if event.buttons == (0, 0, 0):
                     continue

@@ -13,7 +13,7 @@
     canvas:
         Clear
         Color:
-            rgba: self.background_color
+            rgba: (1, 0, 0, 1) if self.highlight else self.background_color
         BorderImage:
             border: self.border
             pos: self.pos
