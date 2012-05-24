@@ -117,6 +117,31 @@ Or, if you don't want to make any changes to Kivy itself, you can also run
 If you want to contribute code (patches, new features) to the Kivy
 code base, please read :ref:`contributing`.
 
+Running the test suite
+~~~~~~~~~~~~~~~~~~~~~~
+
+To help detecting issues and behaviour changes in kivy, a set of unittests is
+provided, a good thing to do is to run it just after kivy installation, and
+then, everytime you intend to push a change, or you think something was brocken
+in kivy, maybe a test will show this. If not, it might be a good time to write
+one .)
+
+Kivy tests are based on nosetest, that you can install from your package
+manager or using pip :
+
+  $ pip install nosetest
+
+to run the test suite, do :
+
+  $ make test
+
+Tests are located in the kivy/tests folder, if you find a bug in kivy, a good
+thing to do can be to write a minimal case showing the issue, to ask core devs
+if the behaviour showed is intended or a real bug, if you put your code as a
+unittest, it will prevent the bug to come back unnoticed in the future, and
+make kivy a better project. Writting unittest may be a really good way to get
+familiar with Kivy while doing something useful.
+
 Uninstalling Kivy
 ~~~~~~~~~~~~~~~~~
 
