@@ -151,7 +151,7 @@ class Screen(RelativeLayout):
     None, read-only.
     '''
 
-    transition_alpha = NumericProperty(0.)
+    transition_progress = NumericProperty(0.)
     '''Value that represent the completion of the current transition, if any is
     occuring.
 
@@ -159,7 +159,7 @@ class Screen(RelativeLayout):
     to 1. If you want to know if it's an entering or leaving animation, check
     the :data:`transition_state`
 
-    :data:`transition_alpha` is a :class:`~kivy.properties.NumericProperty`,
+    :data:`transition_progress` is a :class:`~kivy.properties.NumericProperty`,
     default to 0.
     '''
 
@@ -241,9 +241,9 @@ class TransitionBase(EventDispatcher):
                         on_complete=self._on_complete)
 
         self.add_screen(self.screen_in)
-        self.screen_in.transition_value = 0.
+        self.screen_in.transition_progress = 0.
         self.screen_in.transition_mode = 'in'
-        self.screen_out.transition_value = 0.
+        self.screen_out.transition_progress = 0.
         self.screen_out.transition_mode = 'out'
 
         self._anim.start(self)
@@ -275,10 +275,10 @@ class TransitionBase(EventDispatcher):
         pass
 
     def _on_progress(self, *l):
-        alpha = l[-1]
-        self.screen_in.transition_value = alpha
-        self.screen_out.transition_value = 1. - alpha
-        self.dispatch('on_progress', alpha)
+        progress = l[-1]
+        self.screen_in.transition_progress = progress
+        self.screen_out.transition_progress = 1. - progress
+        self.dispatch('on_progress', progress)
 
     def _on_complete(self, *l):
         self.dispatch('on_complete')
@@ -484,9 +484,10 @@ class FadeTransition(ShaderTransition):
     uniform sampler2D tex_out;
 
     void main(void) {
-        vec4 cin = texture2D(tex_in, tex_coord0);
-        vec4 cout = texture2D(tex_out, tex_coord0);
-        gl_FragColor = mix(cout, cin, t);
+        vec4 cin = vec4(texture2D(tex_in, tex_coord0.st));
+        vec4 cout = vec4(texture2D(tex_out, tex_coord0.st));
+        vec4 frag_col = vec4(t*cout) + vec4((1.0-t)*cin);
+        gl_FragColor = frag_col;
     }
     '''
     fs = StringProperty(FADE_TRANSITION_FS)
