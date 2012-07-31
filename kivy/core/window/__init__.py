@@ -1,3 +1,4 @@
+# pylint: disable=W0611
 '''
 Window
 ======
@@ -194,18 +195,21 @@ class WindowBase(EventDispatcher):
         `on_keyboard`: key, scancode, codepoint, modifier
             Fired when the keyboard is in action
             .. versionchanged:: 1.3.0
-                The *unicode* parameter has be deprecated in favor of
-                codepoint, and will be removed completely in future versions
+
+            The *unicode* parameter has be deprecated in favor of
+            codepoint, and will be removed completely in future versions
         `on_key_down`: key, scancode, codepoint
             Fired when a key is down
             .. versionchanged:: 1.3.0
-                The *unicode* parameter has be deprecated in favor of
-                codepoint, and will be removed completely in future versions
+
+            The *unicode* parameter has be deprecated in favor of
+            codepoint, and will be removed completely in future versions
         `on_key_up`: key, scancode, codepoint
             Fired when a key is up
             .. versionchanged:: 1.3.0
-                The *unicode* parameter has be deprecated in favor of
-                codepoint, and will be removed completely in future versions
+
+            The *unicode* parameter has be deprecated in favor of
+            codepoint, and will be removed completely in future versions
         `on_dropfile`: str
             Fired when a file is dropped on the application
     '''
@@ -286,7 +290,7 @@ class WindowBase(EventDispatcher):
             bind=('_clearcolor', ))
     '''Color used to clear window.
 
-    ::
+  ::
         from kivy.core.window import Window
 
         # red background color
@@ -466,7 +470,7 @@ class WindowBase(EventDispatcher):
         self.parent = self
 
         # before creating the window
-        __import__('kivy.core.gl')
+        import kivy.core.gl
 
         # configure the window
         self.create_window()
@@ -760,7 +764,7 @@ class WindowBase(EventDispatcher):
         pass
 
     def on_keyboard(self, key,
-        scancode=None, codepoint=None, modifier=None ,**kwargs):
+        scancode=None, codepoint=None, modifier=None, **kwargs):
         '''Event called when keyboard is in action
 
         .. warning::
@@ -770,7 +774,6 @@ class WindowBase(EventDispatcher):
             Logger.warning("The use of the unicode parameter is deprecated, "
                 "and will be removed in future versions. Use codepoint "
                 "instead, which has identical semantics.")
-
 
     def on_key_down(self, key,
         scancode=None, codepoint=None, modifier=None, **kwargs):
@@ -970,4 +973,3 @@ class WindowBase(EventDispatcher):
 Window = core_select_lib('window', (
     ('pygame', 'window_pygame', 'WindowPygame'),
 ), True)
-
